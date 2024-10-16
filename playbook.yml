@@ -1,0 +1,50 @@
+- name: nginx static site
+  hosts: remote
+  become: true
+  tasks:
+    - name: update all packages 
+      apt:
+        name: '*'
+        state: latest
+
+    - name: installing nginx
+      apt:
+        name: nginx
+        state: present
+
+    - name: starting nginx 
+      service:
+        name: nginx
+        state: started
+        enabled: true
+    
+    - name: Creating Dir if not exists
+      file:
+        path: /var/www/html
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+
+    - name: copying index.html
+      copy:
+        src: /home/ubuntu/index.html
+        dest: /var/www/html/index.html
+        owner: www-data
+        group: www-data
+        mode: '0644'
+        force: yes
+
+    - name: copying css
+      copy:
+        src: /home/ubuntu/styles.css
+        dest: /var/www//html/styles.css
+        owner: www-data
+        group: www-data
+        mode: '0644'
+        force: yes
+
+    - name: restarting nginx after copy
+      service:
+        name: nginx
+        state: restarted
